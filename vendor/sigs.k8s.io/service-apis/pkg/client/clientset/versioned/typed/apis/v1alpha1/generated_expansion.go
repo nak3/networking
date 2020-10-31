@@ -1,5 +1,4 @@
 /*
-Copyright 2020 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,8 +17,6 @@ limitations under the License.
 
 package v1alpha1
 
-type BackendPolicyExpansion interface{}
-
 type GatewayExpansion interface{}
 
 type GatewayClassExpansion interface{}
@@ -27,7 +24,3 @@ type GatewayClassExpansion interface{}
 type HTTPRouteExpansion interface{}
 
 type TCPRouteExpansion interface{}
-
-type TLSRouteExpansion interface{}
-
-type UDPRouteExpansion interface{}

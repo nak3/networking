@@ -1,5 +1,4 @@
 /*
-Copyright 2020 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,49 +19,66 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// +genclient
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-
-// TCPRoute is the Schema for the TCPRoute resource.
-type TCPRoute struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   TCPRouteSpec   `json:"spec,omitempty"`
-	Status TCPRouteStatus `json:"status,omitempty"`
-}
-
 // TCPRouteSpec defines the desired state of TCPRoute
 type TCPRouteSpec struct {
 	// Rules are a list of TCP matchers and actions.
-	Rules []TCPRouteRule `json:"rules"`
-
-	// Gateways defines which Gateways can use this Route.
-	// +kubebuilder:default={allow: "SameNamespace"}
-	Gateways RouteGateways `json:"gateways,omitempty"`
+	Rules []TCPRouteRule `json:"rules" protobuf:"bytes,1,rep,name=rules"`
 }
 
 // TCPRouteStatus defines the observed state of TCPRoute
 type TCPRouteStatus struct {
-	RouteStatus `json:",inline"`
+	GatewayRefs []GatewayObjectReference `json:"gatewayRefs" protobuf:"bytes,1,rep,name=gatewayRefs"`
+}
+
+// +genclient
+// +kubebuilder:object:root=true
+
+// TCPRoute is the Schema for the tcproutes API
+type TCPRoute struct {
+	metav1.TypeMeta   `json:",inline" protobuf:"bytes,1,opt,name=typeMeta"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,2,opt,name=metadata"`
+
+	Spec   TCPRouteSpec   `json:"spec,omitempty" protobuf:"bytes,3,opt,name=spec"`
+	Status TCPRouteStatus `json:"status,omitempty" protobuf:"bytes,4,opt,name=status"`
 }
 
 // TCPRouteRule is the configuration for a given rule.
 type TCPRouteRule struct {
-	// Matches define conditions used for matching the rule against
-	// incoming TCP connections.
-	// Each match is independent, i.e. this rule will be matched
-	// if **any** one of the matches is satisfied.
+	// Match defines which connections match this rule.
 	//
 	// +optional
-	// +kubebuilder:validation:MaxItems=8
-	Matches []TCPRouteMatch `json:"matches,omitempty"`
-
-	// ForwardTo defines the backend(s) where matching requests should be sent.
+	Match *TCPRouteMatch `json:"match" protobuf:"bytes,1,opt,name=match"`
+	// Action defines what happens to the connection.
+	//
 	// +optional
-	// +kubebuilder:validation:MaxItems=4
-	ForwardTo []RouteForwardTo `json:"forwardTo,omitempty"`
+	Action *TCPRouteAction `json:"action" protobuf:"bytes,2,opt,name=action"`
+}
+
+// TCPRouteAction is the action for a given rule.
+type TCPRouteAction struct {
+	// ForwardTo sends requests to the referenced object.  The
+	// resource may be "services" (omit or use the empty string for the
+	// group), or an implementation may support other resources (for
+	// example, resource "myroutetargets" in group "networking.acme.io").
+	// Omitting or specifying the empty string for both the resource and
+	// group indicates that the resource is "services".  If the referent
+	// cannot be found, the "InvalidRoutes" status condition on any Gateway
+	// that includes the TCPRoute will be true.
+	ForwardTo *ForwardToTarget `json:"forwardTo" protobuf:"bytes,1,opt,name=forwardTo"`
+
+	// ExtensionRef is an optional, implementation-specific extension to the
+	// "action" behavior.  The resource may be "configmaps" (use the empty
+	// string for the group) or an implementation-defined resource (for
+	// example, resource "myrouteactions" in group "networking.acme.io").
+	// Omitting or specifying the empty string for both the resource and
+	// group indicates that the resource is "configmaps".  If the referent
+	// cannot be found, the "InvalidRoutes" status condition on any Gateway
+	// that includes the TCPRoute will be true.
+	//
+	// Support: custom
+	//
+	// +optional
+	ExtensionRef *RouteActionExtensionObjectReference `json:"extensionRef" protobuf:"bytes,2,opt,name=extensionRef"`
 }
 
 // TCPRouteMatch defines the predicate used to match connections to a
@@ -73,25 +89,21 @@ type TCPRouteMatch struct {
 	// string for the group) or an implementation-defined resource (for
 	// example, resource "myroutematchers" in group "networking.acme.io").
 	// Omitting or specifying the empty string for both the resource and
-	// group indicates that the resource is "configmaps".
-	//
-	// If the referent cannot be found, the route must be dropped
-	// from the Gateway. The controller should raise the "ResolvedRefs"
-	// condition on the Gateway with the "DroppedRoutes" reason.
-	// The gateway status for this route should be updated with a
-	// condition that describes the error more specifically.
+	// group indicates that the resource is "configmaps".  If the referent
+	// cannot be found, the "InvalidRoutes" status condition on any Gateway
+	// that includes the TCPRoute will be true.
 	//
 	// Support: custom
 	//
 	// +optional
-	ExtensionRef *LocalObjectReference `json:"extensionRef,omitempty"`
+	ExtensionRef *RouteMatchExtensionObjectReference `json:"extensionRef" protobuf:"bytes,1,opt,name=extensionRef"`
 }
 
 // +kubebuilder:object:root=true
 
 // TCPRouteList contains a list of TCPRoute
 type TCPRouteList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []TCPRoute `json:"items"`
+	metav1.TypeMeta `json:",inline" protobuf:"bytes,1,opt,name=typeMeta"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,2,opt,name=metadata"`
+	Items           []TCPRoute `json:"items" protobuf:"bytes,3,rep,name=items"`
 }

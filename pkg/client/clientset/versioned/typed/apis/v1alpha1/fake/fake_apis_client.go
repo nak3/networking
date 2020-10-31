@@ -28,10 +28,6 @@ type FakeNetworkingV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeNetworkingV1alpha1) BackendPolicies(namespace string) v1alpha1.BackendPolicyInterface {
-	return &FakeBackendPolicies{c, namespace}
-}
-
 func (c *FakeNetworkingV1alpha1) Gateways(namespace string) v1alpha1.GatewayInterface {
 	return &FakeGateways{c, namespace}
 }
@@ -46,14 +42,6 @@ func (c *FakeNetworkingV1alpha1) HTTPRoutes(namespace string) v1alpha1.HTTPRoute
 
 func (c *FakeNetworkingV1alpha1) TCPRoutes(namespace string) v1alpha1.TCPRouteInterface {
 	return &FakeTCPRoutes{c, namespace}
-}
-
-func (c *FakeNetworkingV1alpha1) TLSRoutes(namespace string) v1alpha1.TLSRouteInterface {
-	return &FakeTLSRoutes{c, namespace}
-}
-
-func (c *FakeNetworkingV1alpha1) UDPRoutes(namespace string) v1alpha1.UDPRouteInterface {
-	return &FakeUDPRoutes{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

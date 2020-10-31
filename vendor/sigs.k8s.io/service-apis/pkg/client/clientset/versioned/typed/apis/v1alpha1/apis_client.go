@@ -1,5 +1,4 @@
 /*
-Copyright 2020 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,22 +25,15 @@ import (
 
 type NetworkingV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	BackendPoliciesGetter
 	GatewaysGetter
 	GatewayClassesGetter
 	HTTPRoutesGetter
 	TCPRoutesGetter
-	TLSRoutesGetter
-	UDPRoutesGetter
 }
 
 // NetworkingV1alpha1Client is used to interact with features provided by the networking.x-k8s.io group.
 type NetworkingV1alpha1Client struct {
 	restClient rest.Interface
-}
-
-func (c *NetworkingV1alpha1Client) BackendPolicies(namespace string) BackendPolicyInterface {
-	return newBackendPolicies(c, namespace)
 }
 
 func (c *NetworkingV1alpha1Client) Gateways(namespace string) GatewayInterface {
@@ -58,14 +50,6 @@ func (c *NetworkingV1alpha1Client) HTTPRoutes(namespace string) HTTPRouteInterfa
 
 func (c *NetworkingV1alpha1Client) TCPRoutes(namespace string) TCPRouteInterface {
 	return newTCPRoutes(c, namespace)
-}
-
-func (c *NetworkingV1alpha1Client) TLSRoutes(namespace string) TLSRouteInterface {
-	return newTLSRoutes(c, namespace)
-}
-
-func (c *NetworkingV1alpha1Client) UDPRoutes(namespace string) UDPRouteInterface {
-	return newUDPRoutes(c, namespace)
 }
 
 // NewForConfig creates a new NetworkingV1alpha1Client for the given config.

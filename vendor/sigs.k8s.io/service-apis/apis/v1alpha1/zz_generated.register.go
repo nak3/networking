@@ -1,5 +1,4 @@
 /*
-Copyright 2020 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -58,8 +57,6 @@ func init() {
 // Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&BackendPolicy{},
-		&BackendPolicyList{},
 		&Gateway{},
 		&GatewayClass{},
 		&GatewayClassList{},
@@ -68,10 +65,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&HTTPRouteList{},
 		&TCPRoute{},
 		&TCPRouteList{},
-		&TLSRoute{},
-		&TLSRouteList{},
-		&UDPRoute{},
-		&UDPRouteList{},
 	)
 	// AddToGroupVersion allows the serialization of client types like ListOptions.
 	v1.AddToGroupVersion(scheme, SchemeGroupVersion)

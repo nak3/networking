@@ -24,8 +24,6 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// BackendPolicies returns a BackendPolicyInformer.
-	BackendPolicies() BackendPolicyInformer
 	// Gateways returns a GatewayInformer.
 	Gateways() GatewayInformer
 	// GatewayClasses returns a GatewayClassInformer.
@@ -34,10 +32,6 @@ type Interface interface {
 	HTTPRoutes() HTTPRouteInformer
 	// TCPRoutes returns a TCPRouteInformer.
 	TCPRoutes() TCPRouteInformer
-	// TLSRoutes returns a TLSRouteInformer.
-	TLSRoutes() TLSRouteInformer
-	// UDPRoutes returns a UDPRouteInformer.
-	UDPRoutes() UDPRouteInformer
 }
 
 type version struct {
@@ -49,11 +43,6 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
-}
-
-// BackendPolicies returns a BackendPolicyInformer.
-func (v *version) BackendPolicies() BackendPolicyInformer {
-	return &backendPolicyInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Gateways returns a GatewayInformer.
@@ -74,14 +63,4 @@ func (v *version) HTTPRoutes() HTTPRouteInformer {
 // TCPRoutes returns a TCPRouteInformer.
 func (v *version) TCPRoutes() TCPRouteInformer {
 	return &tCPRouteInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
-}
-
-// TLSRoutes returns a TLSRouteInformer.
-func (v *version) TLSRoutes() TLSRouteInformer {
-	return &tLSRouteInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
-}
-
-// UDPRoutes returns a UDPRouteInformer.
-func (v *version) UDPRoutes() UDPRouteInformer {
-	return &uDPRouteInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
