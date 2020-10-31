@@ -715,7 +715,7 @@ func createIngressReadyDialContext(ctx context.Context, t *testing.T, clients *t
 
 // createIngress creates a Knative Ingress resource
 //func createHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, spec servicev1alpha1.HTTPRouteSpec, io ...Option) (*v1alpha1.Ingress, context.CancelFunc) {
-func createHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, spec servicev1alpha1.HTTPRouteSpec, io ...Option) *servicev1alpha1.HTTPRoute {
+func createHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, spec servicev1alpha1.HTTPRouteSpec, io ...Option) (*servicev1alpha1.HTTPRoute, func(context.Context, string, string) (net.Conn, error), context.CancelFunc) {
 	t.Helper()
 
 	name := test.ObjectNameForTest(t)
@@ -737,27 +737,23 @@ func createHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, s
 		t.Fatalf("TODO: %v", err)
 	}
 
-	return httpRoute
+	return httpRoute, CreateDialContextHTTPRoute(ctx, t, spec, clients), nil
+}
+
+func CreateDialContextHTTPRoute(ctx context.Context, t *testing.T, spec servicev1alpha1.HTTPRouteSpec, clients *test.Clients) func(context.Context, string, string) (net.Conn, error) {
+	dial := network.NewBackoffDialer(dialBackoff)
+	return func(ctx context.Context, _ string, address string) (net.Conn, error) {
+		return dial(ctx, "tcp", spec.Hosts[0].Hostnames[0])
+	}
 }
 
 func CreateHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, spec servicev1alpha1.HTTPRouteSpec) (*servicev1alpha1.HTTPRoute, *http.Client, context.CancelFunc) {
 	t.Helper()
 
 	//httpRoute, cancel := createHTTPRoute(ctx, t, clients, spec)
-	httpRoute := createHTTPRoute(ctx, t, clients, spec)
+	httpRoute, dialer, _ := createHTTPRoute(ctx, t, clients, spec)
 
 	/*
-		// Create a client with a dialer based on the Ingress' public load balancer.
-		ing, dialer, cancel := createIngressReadyDialContext(ctx, t, clients, spec)
-
-		// TODO(mattmoor): How to get ing?
-		var tlsConfig *tls.Config
-		if len(ing.Spec.TLS) > 0 {
-			// CAs are added to this as TLS secrets are created.
-			tlsConfig = &tls.Config{
-				RootCAs: rootCAs,
-			}
-		}
 
 		return ing, &http.Client{
 			Transport: &uaRoundTripper{
@@ -769,6 +765,16 @@ func CreateHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, s
 			},
 		}, cancel
 	*/
+	return httpRoute, &http.Client{
+			Transport: &uaRoundTripper{
+				RoundTripper: &http.Transport{
+					DialContext: dialer,
+					//			TLSClientConfig: tlsConfig,
+				},
+				//ua: fmt.Sprintf("knative.dev/%s/%s", t.Name(), ing.Name),
+			},
+		},
+		nil
 }
 
 func CreateIngressReady(ctx context.Context, t *testing.T, clients *test.Clients, spec v1alpha1.IngressSpec) (*v1alpha1.Ingress, *http.Client, context.CancelFunc) {
