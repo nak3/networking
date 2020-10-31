@@ -732,6 +732,11 @@ func createHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, s
 		Spec: spec,
 	}
 
+	httpRoute, err := clients.ServiceAPIClient.HttpRoutes.Create(ctx, httpRoute, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatalf("TODO: %v", err)
+	}
+
 	return httpRoute
 }
 

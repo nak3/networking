@@ -30,6 +30,8 @@ import (
 	"knative.dev/networking/pkg/client/clientset/versioned"
 	networkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1"
 	"knative.dev/pkg/test"
+	serviceversiond "sigs.k8s.io/service-apis/pkg/client/clientset/versioned"
+	servicev1alpha1 "sigs.k8s.io/service-apis/pkg/client/clientset/versioned/typed/apis/v1alpha1"
 )
 
 // Clients holds instances of interfaces for making requests to Knative Serving.
@@ -37,6 +39,7 @@ type Clients struct {
 	KubeClient       *test.KubeClient
 	NetworkingClient *NetworkingClients
 	Dynamic          dynamic.Interface
+	ServiceAPIClient *ServiceAPIClients
 }
 
 // NetworkingClients holds instances of interfaces for making requests to Knative
@@ -45,6 +48,10 @@ type NetworkingClients struct {
 	ServerlessServices networkingv1alpha1.ServerlessServiceInterface
 	Ingresses          networkingv1alpha1.IngressInterface
 	Certificates       networkingv1alpha1.CertificateInterface
+}
+
+type ServiceAPIClients struct {
+	HttpRoutes servicev1alpha1.HTTPRouteInterface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
@@ -83,6 +90,11 @@ func NewClientsFromConfig(cfg *rest.Config, namespace string) (*Clients, error) 
 		return nil, err
 	}
 
+	clients.ServiceAPIClient, err = newServiceAPIClients(cfg, namespace)
+	if err != nil {
+		return nil, err
+	}
+
 	return clients, nil
 }
 
@@ -97,6 +109,17 @@ func newNetworkingClients(cfg *rest.Config, namespace string) (*NetworkingClient
 		ServerlessServices: cs.NetworkingV1alpha1().ServerlessServices(namespace),
 		Ingresses:          cs.NetworkingV1alpha1().Ingresses(namespace),
 		Certificates:       cs.NetworkingV1alpha1().Certificates(namespace),
+	}, nil
+}
+
+//TODO
+func newServiceAPIClients(cfg *rest.Config, namespace string) (*NetworkingClients, error) {
+	cs, err := serviceversioned.NewForConfig(cfg)
+	if err != nil {
+		return nil, err
+	}
+	return &NetworkingClients{
+		HttpRoutes: cs.NetworkingV1alpha1().HTTPRoutes(namespace),
 	}, nil
 }
 
