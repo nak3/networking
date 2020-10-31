@@ -57,7 +57,6 @@ import (
 	pkgTest "knative.dev/pkg/test"
 	"knative.dev/pkg/test/logging"
 
-	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	servicev1alpha1 "sigs.k8s.io/service-apis/apis/v1alpha1"
 )
 
@@ -712,6 +711,59 @@ func createIngressReadyDialContext(ctx context.Context, t *testing.T, clients *t
 
 	// Create a dialer based on the Ingress' public load balancer.
 	return ing, CreateDialContext(ctx, t, ing, clients), cancel
+}
+
+// createIngress creates a Knative Ingress resource
+//func createHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, spec servicev1alpha1.HTTPRouteSpec, io ...Option) (*v1alpha1.Ingress, context.CancelFunc) {
+func createHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, spec servicev1alpha1.HTTPRouteSpec, io ...Option) *servicev1alpha1.HTTPRoute {
+	t.Helper()
+
+	name := test.ObjectNameForTest(t)
+
+	// Create a simple Ingress over the Service.
+	httpRoute := &servicev1alpha1.HTTPRoute{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: test.ServingNamespace,
+			Annotations: map[string]string{
+				networking.IngressClassAnnotationKey: test.NetworkingFlags.IngressClass,
+			},
+		},
+		Spec: spec,
+	}
+
+	return httpRoute
+}
+
+func CreateHTTPRoute(ctx context.Context, t *testing.T, clients *test.Clients, spec servicev1alpha1.HTTPRouteSpec) (*servicev1alpha1.HTTPRoute, *http.Client, context.CancelFunc) {
+	t.Helper()
+
+	//httpRoute, cancel := createHTTPRoute(ctx, t, clients, spec)
+	httpRoute := createHTTPRoute(ctx, t, clients, spec)
+
+	/*
+		// Create a client with a dialer based on the Ingress' public load balancer.
+		ing, dialer, cancel := createIngressReadyDialContext(ctx, t, clients, spec)
+
+		// TODO(mattmoor): How to get ing?
+		var tlsConfig *tls.Config
+		if len(ing.Spec.TLS) > 0 {
+			// CAs are added to this as TLS secrets are created.
+			tlsConfig = &tls.Config{
+				RootCAs: rootCAs,
+			}
+		}
+
+		return ing, &http.Client{
+			Transport: &uaRoundTripper{
+				RoundTripper: &http.Transport{
+					DialContext:     dialer,
+					TLSClientConfig: tlsConfig,
+				},
+				ua: fmt.Sprintf("knative.dev/%s/%s", t.Name(), ing.Name),
+			},
+		}, cancel
+	*/
 }
 
 func CreateIngressReady(ctx context.Context, t *testing.T, clients *test.Clients, spec v1alpha1.IngressSpec) (*v1alpha1.Ingress, *http.Client, context.CancelFunc) {
