@@ -54,9 +54,9 @@ ${KNATIVE_CODEGEN_PKG}/hack/generate-knative.sh "injection" \
 
 # serving v2
 ${CODEGEN_PKG}/generate-groups.sh "client,informer,lister" \
-  knative.dev/networking/pkg/client sigs.k8s.io/service-apis/pkg/apis \
+  knative.dev/networking/pkg/client sigs.k8s.io/service-apis/apis \
   "networking:v1alpha3" \
-  --go-header-file ${REPO_ROOT}/hack/boilerplate/boilerplate.go.txt
+  --go-header-file ${REPO_ROOT_DIR}/hack/boilerplate/boilerplate.go.txt
 
 # Depends on generate-groups.sh to install bin/deepcopy-gen
 ${GOPATH}/bin/deepcopy-gen \
