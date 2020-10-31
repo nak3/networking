@@ -30,7 +30,7 @@ import (
 	"knative.dev/networking/pkg/client/clientset/versioned"
 	networkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1"
 	"knative.dev/pkg/test"
-	serviceversiond "sigs.k8s.io/service-apis/pkg/client/clientset/versioned"
+	serviceversioned "sigs.k8s.io/service-apis/pkg/client/clientset/versioned"
 	servicev1alpha1 "sigs.k8s.io/service-apis/pkg/client/clientset/versioned/typed/apis/v1alpha1"
 )
 
@@ -113,12 +113,12 @@ func newNetworkingClients(cfg *rest.Config, namespace string) (*NetworkingClient
 }
 
 //TODO
-func newServiceAPIClients(cfg *rest.Config, namespace string) (*NetworkingClients, error) {
+func newServiceAPIClients(cfg *rest.Config, namespace string) (*ServiceAPIClients, error) {
 	cs, err := serviceversioned.NewForConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
-	return &NetworkingClients{
+	return &ServiceAPIClients{
 		HttpRoutes: cs.NetworkingV1alpha1().HTTPRoutes(namespace),
 	}, nil
 }
