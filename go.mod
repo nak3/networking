@@ -19,7 +19,8 @@ require (
 	k8s.io/code-generator v0.19.2
 	knative.dev/hack v0.0.0-20201028205534-fe80f1c8af68
 	knative.dev/pkg v0.0.0-20201029122234-6d905b3f84a6
-	sigs.k8s.io/service-apis v0.0.0-20201029223806-3fdc5d3fb0a8
+	//sigs.k8s.io/service-apis v0.0.0-20201029223806-3fdc5d3fb0a8
+	sigs.k8s.io/service-apis v0.0.0-20200731055707-56154e7bfde5
 )
 
 replace (
