@@ -56,6 +56,9 @@ import (
 	"knative.dev/pkg/reconciler"
 	pkgTest "knative.dev/pkg/test"
 	"knative.dev/pkg/test/logging"
+
+	"knative.dev/networking/pkg/apis/networking/v1alpha1"
+	servicev1alpha1 "sigs.k8s.io/service-apis/apis/v1alpha1"
 )
 
 var rootCAs = x509.NewCertPool()
