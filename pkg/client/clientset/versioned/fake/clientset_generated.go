@@ -25,8 +25,8 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
 	clientset "knative.dev/networking/pkg/client/clientset/versioned"
-	networkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1"
-	fakenetworkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1/fake"
+	networkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/apis/v1alpha1"
+	fakenetworkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/apis/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
