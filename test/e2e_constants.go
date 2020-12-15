@@ -23,4 +23,7 @@ package test
 const (
 	// ServingNamespace is the default namespace for serving e2e tests
 	ServingNamespace = "serving-tests"
+
+	// ServingNamespace is the default namespace for serving e2e tests
+	ServingNamespaceAlt = "serving-tests-alt"
 )

@@ -70,6 +70,8 @@ func TestRewriteHost(t *testing.T) {
 		hosts[i] = name + "." + host
 	}
 
+	// Same test but another ns
+
 	// Now create a RewriteHost ingress to point a custom Host at the Service
 	_, client, _ := CreateIngressReady(ctx, t, clients, v1alpha1.IngressSpec{
 		Rules: []v1alpha1.IngressRule{{
@@ -81,7 +83,70 @@ func TestRewriteHost(t *testing.T) {
 					Splits: []v1alpha1.IngressBackendSplit{{
 						IngressBackend: v1alpha1.IngressBackend{
 							ServiceName:      privateServiceName,
-							ServiceNamespace: test.ServingNamespace,
+							ServiceNamespace: test.ServingNamespaceAlt,
+							ServicePort:      intstr.FromInt(80),
+						},
+					}},
+				}},
+			},
+		}},
+	})
+
+	for _, host := range hosts {
+		RuntimeRequest(ctx, t, client, "http://"+host)
+	}
+
+	name, port, _ = CreateRuntimeService(ctx, t, clients, networking.ServicePortNameHTTP1)
+
+	privateServiceName = test.ObjectNameForTest(t)
+	privateHostName = privateServiceName + "." + test.ServingNamespaceAlt + ".svc.cluster.local"
+
+	// Create a simple Ingress over the Service.
+	ing, _, _ = CreateIngressReady(ctx, t, clients, v1alpha1.IngressSpec{
+		Rules: []v1alpha1.IngressRule{{
+			Visibility: v1alpha1.IngressVisibilityClusterLocal,
+			Hosts:      []string{privateHostName},
+			HTTP: &v1alpha1.HTTPIngressRuleValue{
+				Paths: []v1alpha1.HTTPIngressPath{{
+					Splits: []v1alpha1.IngressBackendSplit{{
+						IngressBackend: v1alpha1.IngressBackend{
+							ServiceName:      name,
+							ServiceNamespace: test.ServingNamespaceAlt,
+							ServicePort:      intstr.FromInt(port),
+						},
+					}},
+				}},
+			},
+		}},
+	})
+
+	// Slap an ExternalName service in front of the kingress
+	loadbalancerAddress = ing.Status.PrivateLoadBalancer.Ingress[0].DomainInternal
+	createExternalNameService(ctx, t, clients, privateHostName, loadbalancerAddress)
+
+	hosts = []string{
+		"vanity.ismy.name",
+		"vanity.isalsomy.number",
+	}
+
+	// Using fixed hostnames can lead to conflicts when -count=N>1
+	// so pseudo-randomize the hostnames to avoid conflicts.
+	for i, host := range hosts {
+		hosts[i] = name + "." + host
+	}
+
+	// Now create a RewriteHost ingress to point a custom Host at the Service
+	_, client, _ = CreateIngressReady(ctx, t, clients, v1alpha1.IngressSpec{
+		Rules: []v1alpha1.IngressRule{{
+			Hosts:      hosts,
+			Visibility: v1alpha1.IngressVisibilityExternalIP,
+			HTTP: &v1alpha1.HTTPIngressRuleValue{
+				Paths: []v1alpha1.HTTPIngressPath{{
+					RewriteHost: privateHostName,
+					Splits: []v1alpha1.IngressBackendSplit{{
+						IngressBackend: v1alpha1.IngressBackend{
+							ServiceName:      privateServiceName,
+							ServiceNamespace: test.ServingNamespaceAlt,
 							ServicePort:      intstr.FromInt(80),
 						},
 					}},

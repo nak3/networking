@@ -98,6 +98,11 @@ jobs:
         repository: knative-sandbox/${{ matrix.repository }}
         path: ./src/knative.dev/${{ matrix.repository }}
 
+    # temp
+    - name: Create namespace
+      run: |
+        kubectl create ns serving-tests-alt
+
     - name: Test Downstream
       uses: knative-sandbox/downstream-test-go@v1.0.1
       with:
