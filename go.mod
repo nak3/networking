@@ -14,10 +14,11 @@ require (
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
 	google.golang.org/grpc v1.35.0
-	k8s.io/api v0.19.7
-	k8s.io/apimachinery v0.19.7
-	k8s.io/client-go v0.19.7
-	k8s.io/code-generator v0.19.7
+	k8s.io/api v0.20.2
+	k8s.io/apimachinery v0.20.2
+	k8s.io/client-go v0.20.2
+	k8s.io/code-generator v0.20.2
 	knative.dev/hack v0.0.0-20210203173706-8368e1f6eacf
 	knative.dev/pkg v0.0.0-20210215165523-84c98f3c3e7a
+	sigs.k8s.io/gateway-api v0.2.0
 )

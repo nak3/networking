@@ -30,13 +30,22 @@ import (
 	"knative.dev/networking/pkg/client/clientset/versioned"
 	networkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1"
 	"knative.dev/pkg/test"
+	gwversioned "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
+	gwv1alpha1 "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned/typed/apis/v1alpha1"
 )
 
 // Clients holds instances of interfaces for making requests to Knative Serving.
 type Clients struct {
 	KubeClient       *test.KubeClient
 	NetworkingClient *NetworkingClients
+	GatewayAPIClient *GatewayAPIClients
 	Dynamic          dynamic.Interface
+}
+
+// GatewayClients holds instances of interfaces for making requests to Knative
+// networking clients.
+type GatewayAPIClients struct {
+	HTTPRoutes gwv1alpha1.HTTPRouteInterface
 }
 
 // NetworkingClients holds instances of interfaces for making requests to Knative
@@ -83,7 +92,23 @@ func NewClientsFromConfig(cfg *rest.Config, namespace string) (*Clients, error) 
 		return nil, err
 	}
 
+	clients.GatewayAPIClient, err = newGatewayAPIClients(cfg, namespace)
+	if err != nil {
+		return nil, err
+	}
+
 	return clients, nil
+}
+
+// TODO
+func newGatewayAPIClients(cfg *rest.Config, namespace string) (*GatewayAPIClients, error) {
+	cs, err := gwversioned.NewForConfig(cfg)
+	if err != nil {
+		return nil, err
+	}
+	return &GatewayAPIClients{
+		HTTPRoutes: cs.NetworkingV1alpha1().HTTPRoutes(namespace),
+	}, nil
 }
 
 // newNetworkingClients instantiates and returns the networking clientset required to make requests
